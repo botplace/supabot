@@ -2,6 +2,7 @@ import { Bot, Context, webhookCallback } from 'https://deno.land/x/grammy@v1.10.
 import { Application } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
+const TELEGRAM_BOT_SECRET = TELEGRAM_BOT_TOKEN.replace(':', '');
 
 // Handlers
 const startHandler = async (ctx: Context) => {
@@ -14,5 +15,5 @@ bot.command("start", startHandler);
 
 // Setup oak
 const app = new Application();
-app.use(webhookCallback(bot, 'oak'));
+app.use(webhookCallback(bot, 'oak', { secretToken: TELEGRAM_BOT_SECRET }));
 app.listen();
