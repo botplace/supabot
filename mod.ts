@@ -44,7 +44,8 @@ const forwardToUser = async (ctx: Context) => {
 // Setup bot
 const bot = new Bot(TELEGRAM_BOT_TOKEN);
 bot.command("start", startHandler);
-bot.filter(ctx => ctx.chat?.type === 'private').on("message", forwardToChat);
+bot.filter(ctx => ctx.chat?.id?.toString() !== TELEGRAM_CHAT_ID && ctx.chat?.type === 'private')
+  .on("message", forwardToChat);
 bot.filter(ctx => ctx.chat?.id?.toString() === TELEGRAM_CHAT_ID && !!ctx.msg?.reply_to_message)
   .on("message", forwardToUser);
 
