@@ -3,7 +3,7 @@ import { User, Message } from "https://deno.land/x/grammy@v1.10.1/types.deno.ts"
 import { Application } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
-const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID")!;
+const TELEGRAM_CHAT_IDS = Deno.env.get("TELEGRAM_CHAT_IDS")!.split(';');
 const TELEGRAM_BOT_SECRET = TELEGRAM_BOT_TOKEN.replace(':', '');
 const WELCOME_MESSAGE = Deno.env.get("WELCOME_MESSAGE") ?? 'Welcome 👋\nHow can I help?';
 const REPLY_MESSAGE = Deno.env.get("REPLY_MESSAGE") ?? 'Reply to this message, please.';
@@ -18,19 +18,24 @@ const retrieveUserId = (msg?: Message) => {
   const replyToText = msg?.reply_to_message?.text;
   return forwardFrom
     ? forwardFrom.id
-    : replyToText?.includes(REPLY_MESSAGE) ? replyToText?.split('\n')?.[0] : null;
+    : replyToText?.includes(REPLY_MESSAGE) ? +replyToText?.split('\n')?.[0] : null;
 }
+
+
+const pickChatId = (id?: number | null) =>
+  TELEGRAM_CHAT_IDS[(id || 0) % TELEGRAM_CHAT_IDS.length];
 
 // Handlers
 const startHandler = async (ctx: Context) => {
   await ctx.reply(WELCOME_MESSAGE);
-  await ctx.api.sendMessage(TELEGRAM_CHAT_ID, `👋 ${userToString(ctx.from)}`);
+  await ctx.api.sendMessage(pickChatId(ctx.from?.id), `👋 ${userToString(ctx.from)}`);
 }
 
+// Picks chat id to forward from list based on user id
 const forwardToChat = async (ctx: Context) => {
-  const forwarded = await ctx.forwardMessage(TELEGRAM_CHAT_ID);
+  const forwarded = await ctx.forwardMessage(pickChatId(ctx.from?.id));
   if (!forwarded.forward_from) {
-    await ctx.api.sendMessage(TELEGRAM_CHAT_ID, `${ctx.from?.id}\n${REPLY_MESSAGE}`);
+    await ctx.api.sendMessage(pickChatId(ctx.from?.id), `${ctx.from?.id}\n${REPLY_MESSAGE}`);
   }
 }
 
@@ -38,15 +43,15 @@ const forwardToUser = async (ctx: Context) => {
   const userId = retrieveUserId(ctx.msg);
   return userId
     ? await ctx.api.copyMessage(userId, ctx.msg!.chat.id, ctx.msg!.message_id)
-    : await ctx.api.sendMessage(TELEGRAM_CHAT_ID, WRONG_REPLY_MESSAGE);
+    : await ctx.api.sendMessage(pickChatId(userId), WRONG_REPLY_MESSAGE);
 }
 
 // Setup bot
 const bot = new Bot(TELEGRAM_BOT_TOKEN);
 bot.command("start", startHandler);
-bot.filter(ctx => ctx.chat?.id?.toString() !== TELEGRAM_CHAT_ID && ctx.chat?.type === 'private')
+bot.filter(ctx => ctx.chat?.type === 'private' && !TELEGRAM_CHAT_IDS.includes(ctx.chat?.id?.toString()))
   .on("message", forwardToChat);
-bot.filter(ctx => ctx.chat?.id?.toString() === TELEGRAM_CHAT_ID && !!ctx.msg?.reply_to_message)
+bot.filter(ctx => TELEGRAM_CHAT_IDS.includes(ctx.chat?.id?.toString() ?? '') && !!ctx.msg?.reply_to_message)
   .on("message", forwardToUser);
 
 // Setup oak
