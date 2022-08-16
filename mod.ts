@@ -6,6 +6,7 @@ const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const TELEGRAM_CHAT_IDS = Deno.env.get("TELEGRAM_CHAT_IDS")!.split(';');
 const TELEGRAM_BOT_SECRET = TELEGRAM_BOT_TOKEN.replace(':', '');
 const WELCOME_MESSAGE = Deno.env.get("WELCOME_MESSAGE") ?? 'Welcome 👋\nHow can I help?';
+const FAQ_MESSAGE = Deno.env.get("FAQ_MESSAGE") ?? 'Please, just ask your question right away.';
 const REPLY_MESSAGE = Deno.env.get("REPLY_MESSAGE") ?? 'Reply to this message, please.';
 const WRONG_REPLY_MESSAGE = Deno.env.get("WRONG_REPLY_MESSAGE") ?? 'Reply to the proper message, please.';
 
@@ -31,6 +32,10 @@ const startHandler = async (ctx: Context) => {
   await ctx.api.sendMessage(pickChatId(ctx.from?.id), `👋 ${userToString(ctx.from)}`);
 }
 
+const faqHandler = async (ctx: Context) => {
+  await ctx.reply(FAQ_MESSAGE);
+}
+
 // Picks chat id to forward from list based on user id
 const forwardToChat = async (ctx: Context) => {
   const forwarded = await ctx.forwardMessage(pickChatId(ctx.from?.id));
@@ -49,6 +54,7 @@ const forwardToUser = async (ctx: Context) => {
 // Setup bot
 const bot = new Bot(TELEGRAM_BOT_TOKEN);
 bot.command("start", startHandler);
+bot.command("faq", faqHandler);
 bot.filter(ctx => ctx.chat?.type === 'private' && !TELEGRAM_CHAT_IDS.includes(ctx.chat?.id?.toString()))
   .on("message", forwardToChat);
 bot.filter(ctx => TELEGRAM_CHAT_IDS.includes(ctx.chat?.id?.toString() ?? '') && !!ctx.msg?.reply_to_message)
