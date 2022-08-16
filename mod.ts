@@ -1,4 +1,5 @@
 import { Bot, Context, webhookCallback } from 'https://deno.land/x/grammy@v1.10.1/mod.ts';
+import { User } from "https://deno.land/x/grammy@v1.10.1/types.deno.ts";
 import { Application } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
@@ -6,10 +7,14 @@ const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID")!;
 const TELEGRAM_BOT_SECRET = TELEGRAM_BOT_TOKEN.replace(':', '');
 const REPLY_MESSAGE = Deno.env.get("REPLY_MESSAGE") ?? 'Reply to this message, please.';
 
+// Utils
+const userToString = (user?: User) =>
+  !user ? '👻' : user.username ? `@${user.username}` : `${user.first_name} (${user.id})`;
+
 // Handlers
 const startHandler = async (ctx: Context) => {
   await ctx.reply('Welcome 👋\nHow can I help?');
-  await ctx.api.sendMessage(TELEGRAM_CHAT_ID, `👋 ${JSON.stringify(ctx.from)}`);
+  await ctx.api.sendMessage(TELEGRAM_CHAT_ID, `👋 ${userToString(ctx.from)}`);
 }
 
 const forwardToChat = async (ctx: Context) => {
