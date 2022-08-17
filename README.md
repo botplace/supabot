@@ -7,7 +7,17 @@ Talk to [BotFather](https://t.me/botfather) to create a bot and get a token.
 Create a group chat and copy its id. You can find id in url by opening group chat in [web](https://web.telegram.org/) version.
 
 #### 3. Deploy
-[![Deploy to Deno](https://deno.com/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/tchief/supabot/main/mod.ts&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID)
+[![Deploy to Deno](https://deno.com/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/tchief/supabot/main/mod.ts&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_IDS)
+
+#### 4. Environment variables
+1. `TELEGRAM_CHAT_IDS`: 
+ - either a single chat id: `-1234567`
+ - or a list separated by `;`: `1231231;23423423`; bots picks any id from list and forwards message there based on user id
+ - or a list with keywords, separated by `,`: `1231231:realtime,multiplayer;23423423:auth,docs;5676767:bug&edge,functions`; bots picks `1231231` for message with any word `realtime` or `multiplayer`, and `5676767` for message with word `bug` *and* any of `edge` or `functions`
+2. `WELCOME_MESSAGE`: used when user send `/start` to bot
+3. `REPLY_MESSAGE`: used in admin chats
+4. `WRONG_REPLY_MESSAGE`: used in admin chats
+5. `FAQ_MESSAGE`: used when user send `/faq` to bot
 
 #### 4. Set webhook
 Replace `{YOUR_...}` with your variables and go to
