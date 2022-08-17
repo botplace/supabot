@@ -3,7 +3,8 @@ import { User, Message } from "https://deno.land/x/grammy@v1.10.1/types.deno.ts"
 import { Application } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
-const TELEGRAM_CHAT_IDS = Deno.env.get("TELEGRAM_CHAT_IDS")!.split(';');
+const TELEGRAM_CHAT_RULES = Deno.env.get("TELEGRAM_CHAT_IDS")!.split(';');
+const TELEGRAM_CHAT_IDS = TELEGRAM_CHAT_RULES.map(i => i.split(':')[0]);
 const TELEGRAM_BOT_SECRET = TELEGRAM_BOT_TOKEN.replace(':', '');
 const WELCOME_MESSAGE = Deno.env.get("WELCOME_MESSAGE") ?? 'Welcome 👋\nHow can I help?';
 const FAQ_MESSAGE = Deno.env.get("FAQ_MESSAGE") ?? 'Please, just ask your question right away.';
@@ -22,14 +23,25 @@ const retrieveUserId = (msg?: Message) => {
     : replyToText?.includes(REPLY_MESSAGE) ? +replyToText?.split('\n')?.[0] : null;
 }
 
+const pickChatId = <T,>(array: T[], id?: number | null) => array[(id || 0) % array.length];
 
-const pickChatId = (id?: number | null) =>
-  TELEGRAM_CHAT_IDS[(id || 0) % TELEGRAM_CHAT_IDS.length];
+const pickChatIdByKeywords = (id?: number, text?: string) => {
+  if (!id || !text) return TELEGRAM_CHAT_IDS[0];
+  // Uses (?=.*(auth|docs)) or (?=.*(bug))(?=.*(edge|functions))
+  const rules = TELEGRAM_CHAT_RULES.map(group => ({
+    id: group.split(':')[0],
+    keywords: group.split(':')[1]?.split('&')?.map(k => k.split(',')),
+    regex: new RegExp(group.split(':')[1]?.split('&')?.map(k => `(?=.*(${k.replace(',', '|')}))`).join(''), 'i')
+  }));
+  const withKeywords = rules.filter(rule => rule.keywords?.length > 0);
+  const matchesKeywords = withKeywords.filter(rule => rule.regex.test(text));
+  return matchesKeywords.length ? pickChatId(matchesKeywords, id).id : pickChatId(rules, id).id;
+}
 
 // Handlers
 const startHandler = async (ctx: Context) => {
   await ctx.reply(WELCOME_MESSAGE);
-  await ctx.api.sendMessage(pickChatId(ctx.from?.id), `👋 ${userToString(ctx.from)}`);
+  await ctx.api.sendMessage(pickChatIdByKeywords(), `👋 ${userToString(ctx.from)}`);
 }
 
 const faqHandler = async (ctx: Context) => {
@@ -38,9 +50,9 @@ const faqHandler = async (ctx: Context) => {
 
 // Picks chat id to forward from list based on user id
 const forwardToChat = async (ctx: Context) => {
-  const forwarded = await ctx.forwardMessage(pickChatId(ctx.from?.id));
+  const forwarded = await ctx.forwardMessage(pickChatIdByKeywords(ctx.from?.id, ctx.msg?.text));
   if (!forwarded.forward_from) {
-    await ctx.api.sendMessage(pickChatId(ctx.from?.id), `${ctx.from?.id}\n${REPLY_MESSAGE}`);
+    await ctx.api.sendMessage(pickChatIdByKeywords(ctx.from?.id, ctx.msg?.text), `${ctx.from?.id}\n${REPLY_MESSAGE}`);
   }
 }
 
@@ -48,7 +60,7 @@ const forwardToUser = async (ctx: Context) => {
   const userId = retrieveUserId(ctx.msg);
   return userId
     ? await ctx.api.copyMessage(userId, ctx.msg!.chat.id, ctx.msg!.message_id)
-    : await ctx.api.sendMessage(pickChatId(userId), WRONG_REPLY_MESSAGE);
+    : await ctx.api.sendMessage(pickChatIdByKeywords(), WRONG_REPLY_MESSAGE);
 }
 
 // Setup bot
