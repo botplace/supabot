@@ -36,7 +36,7 @@ Talk to [BotFather](https://t.me/botfather) to create a bot and get a token.
 Create a group chat and copy its id. You can find id in url by opening group chat in [web](https://web.telegram.org/) version.
 
 #### 3. Deploy
-[![Deploy to Deno](https://deno.com/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/tchief/supabot/main/mod.ts&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_IDS)
+[![Deploy to Deno](https://deno.com/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/tchief/supabot/v0.1.0/mod.ts&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_IDS)
 
 #### 4. Environment variables
 1. `TELEGRAM_BOT_TOKEN`: [bot token](#1-create-bot)
