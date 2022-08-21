@@ -39,14 +39,14 @@ Create a group chat and copy its id. You can find id in url by opening group cha
 [![Deploy to Deno](https://deno.com/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/tchief/supabot/main/mod.ts&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_IDS)
 
 #### 4. Environment variables
-1. `TELEGRAM_CHAT_IDS`: 
- - either a single chat id: `-1234567`
- - or a list separated by `;`: `1231231;23423423`; bots picks any id from list and forwards message there based on user id
- - or a list with keywords, separated by `,`: `1231231:realtime,multiplayer;23423423:auth,docs;5676767:bug&edge,functions`; bots picks `1231231` for message with any word `realtime` or `multiplayer`, and `5676767` for message with word `bug` *and* any of `edge` or `functions`
-2. `WELCOME_MESSAGE`: used when user send `/start` to bot
-3. `REPLY_MESSAGE`: used in admin chats
-4. `WRONG_REPLY_MESSAGE`: used in admin chats
-5. `FAQ_MESSAGE`: used when user send `/faq` to bot
+1. `TELEGRAM_BOT_TOKEN`: [bot token](#1-create-bot)
+2. `TELEGRAM_CHAT_IDS`: [chat forwarding rules](#chat-forwarding-rules) or list `1231231;-23423423`
+
+##### Optional
+3. `WELCOME_MESSAGE`: used when user send `/start` to bot
+4. `REPLY_MESSAGE`: used in admin chats
+5. `WRONG_REPLY_MESSAGE`: used in admin chats
+6. `FAQ_MESSAGE`: used when user send `/faq` to bot
 
 #### 4. Set webhook
 Replace `{YOUR_...}` with your variables and go to
@@ -54,3 +54,17 @@ Replace `{YOUR_...}` with your variables and go to
 `https://api.telegram.org/bot{YOUR_TOKEN}/setWebhook?url=https://{YOUR_DENO_PROJECT_NAME}.deno.dev&secret_token={YOUR_TOKEN_WITHOUT_:}`
 
 #### 5. Enjoy
+
+### Chat forwarding rules
+Could be
+ - `-1234567` - single chat id
+ - `1231231;-23423423` - list separated by `;`, bots picks any id from list and forwards message there based on user id
+ - `1231231:realtime,multiplayer;23423423:auth,docs;5676767:bug&edge,functions` - list with keywords, separated by `,`
+
+ ```
+ realtime bug -> 1231231
+ multiplayer is awesome! -> 1231231
+ bug in the edge -> 5676767
+ functions have bug -> 5676767
+ bug somewhere -> random
+ ```
