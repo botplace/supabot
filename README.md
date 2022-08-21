@@ -27,7 +27,7 @@ Talk to <a href="https://t.me/SupabaseBot">Supabot</a>.
 ## Self Hosting
 
 You can host a single support telegram bot on Deno or Supabase Functions.
-Bot builder data stored in Supabase.
+Bot builder data stored in Supabase, to self host it, run migrations first.
 
 #### 1. Create bot
 Talk to [BotFather](https://t.me/botfather) to create a bot and get a token.
