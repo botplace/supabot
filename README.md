@@ -8,6 +8,14 @@
   </p>
 </p>
 
+## How it works
+
+Setup support, feedback or anonymous chats. Works similar to Livegram & its clones, but with [forwarding rules](#chat-forwarding-rules). Bot does not store user history.
+1. User writes to the bot.
+2. Bot forwards message to the chat predefined by rules.
+3. Admin replies to the message.
+4. Bot forwards message to user.
+
 ## Roadmap
 
 - [x] Forward private messages to support chat
