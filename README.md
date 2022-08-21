@@ -1,4 +1,33 @@
-# Supabot
+<p align="center">
+<img width="150" src="https://user-images.githubusercontent.com/729374/185797791-ea770c47-13c7-4060-a2b4-9c7fc8c7257c.png" />
+<h1 align="center"><b>Supabot</b></h1>
+<p align="center">
+  Bot builder for Supabase users.
+    <br />
+    <a href="https://t.me/SupabaseBot"><strong>⚡ Build your bot ⚡</strong></a>
+  </p>
+</p>
+
+## Roadmap
+
+- [x] Forward private messages to support chat
+- [X] Support multiple chats to forward
+- [x] Rules for routing messages
+- [x] Self host single telegram support bot
+- [x] Create telegram support bot via <a href="https://t.me/SupabaseBot">Supabot</a>
+- [ ] Message customization
+- [ ] Tickets / threads
+- [ ] More bot types
+- [ ] More platforms
+
+## Hosted
+
+Talk to <a href="https://t.me/SupabaseBot">Supabot</a>.
+
+## Self Hosting
+
+You can host a single support telegram bot on Deno or Supabase Functions.
+Bot builder data stored in Supabase.
 
 #### 1. Create bot
 Talk to [BotFather](https://t.me/botfather) to create a bot and get a token.
